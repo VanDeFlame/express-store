@@ -1,84 +1,53 @@
-const faker = require("faker");
-const products = require("../database/products.database");
-
+const boom = require('boom');
+const { models } = require('../libs/sequelize');
 class ProductsService {
-  constructor() {
-    this.products = products;
-  }
+  constructor() {}
 
   async create(data) {
-    return new Promise((resolve, reject) => {
-      if (!data.name || !data.price || !data.image) {
-        reject('Missing data');
-      }
+    const newProduct = await models.Product.create(data);
 
-      const newProduct = {
-        id: faker.datatype.uuid(),
-        ...data
-      };
-
-      this.products.push(newProduct);
-
-      resolve(newProduct);
-    })
+    return newProduct;
   }
 
   async find(limit, offset=0) {
-    return new Promise((resolve, reject) => {
-      if (this.products.length === 0) {
-        reject(`Not products`)
-      }
+    const products = await models.Product.findAll({
+      limit,
+      offset
+    });
 
-      if (limit) {
-        const indexLast = Number(offset) + Number(limit);
-        resolve(this.products.slice(offset, indexLast))
-      }
+    if (products.length === 0) {
+      throw boom.notFound(`Not products`);
+    }
 
-      resolve(this.products);
-    })
+    return products;
   }
 
   async findOne(id) {
-    return new Promise((resolve, reject) => {
-      const product = this.products.find(item => item.id === id);
+    const product = await models.Product.findByPk(id);
 
-      if (!product) {
-        reject(`Product ${id} doesn't exists`)
-      }
+    if (!product) {
+      throw boom.notFound(`Product ${id} doesn't exists`)
+    }
 
-      resolve(product);
-    })
+    return product;
   }
 
   async update(id, changes) {
-    return new Promise((resolve, reject) => {
-      const index = this.products.findIndex(item => item.id === id);
+    const product = await this.findOne(id);
+    const rta = await product.update(changes, {
+      where: { id }
+    });
 
-      if (index === -1) {
-        reject(`Product ${id} doesn't exists`)
-      }
-
-      const newItem = {
-        ...this.products[index],
-        ...changes
-      };
-
-      this.products[index] = newItem;
-      resolve(newItem);
-    })
+    return rta;
   }
 
   async delete(id) {
-    return new Promise((resolve, reject) => {
-      const index = this.products.findIndex(item => item.id === id);
+    const product = await this.findOne(id);
+    await product.destroy({
+      where: { id }
+    });
 
-      if (index === -1) {
-        reject(`Product ${id} doesn't exists`)
-      }
-
-      const productDeleted = this.products.splice(index, 1)[0];
-      resolve(productDeleted);
-    })
+    return product;
   }
 }
 

@@ -19,61 +19,65 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:userId", async (req, res, next) => {
-  validatorHandler(getUserSchema, 'params');
-
-  try {
-    const { userId } = req.params;
-    const user = await usersService.findOne(userId);
-    res.status(200).json(user);
-  } catch (err) {
-    next(err);
+router.get("/:userId",
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const user = await usersService.findOne(userId);
+      res.status(200).json(user);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-router.post('/', async (req, res, next) => {
-  validatorHandler(createUserSchema, 'body');
-
-  try {
-    const user = await usersService.create(req.body)
-    res.status(201).json({
-      message: 'Created',
-      data: user
-    })
-  } catch (err) {
-    next(err);
+router.post('/',
+  validatorHandler(createUserSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const user = await usersService.create(req.body)
+      res.status(201).json({
+        message: 'Created',
+        data: user
+      })
+    } catch (err) {
+      next(err);
+    }
   }
-})
+)
 
-router.patch('/:userId', async (req, res, next) => {
-  validatorHandler(getUserSchema, 'params');
-  validatorHandler(updateUserSchema, 'body');
-
-  try {
-    const { userId } = req.params;
-    const user = await usersService.update(userId, req.body)
-    res.status(200).json({
-      message: 'Updated',
-      data: user
-    })
-  } catch (err) {
-    next(err);
+router.patch('/:userId',
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const user = await usersService.update(userId, req.body)
+      res.status(200).json({
+        message: 'Updated',
+        data: user
+      })
+    } catch (err) {
+      next(err);
+    }
   }
-})
+)
 
-router.delete('/:userId', async (req, res, next) => {
-  validatorHandler(getUserSchema, 'params');
-
-  try {
-    const { userId } = req.params;
-    const user = await usersService.delete(userId)
-    res.status(200).json({
-      message: 'Deleted',
-      data: user
-    })
-  } catch (err) {
-    next(err);
+router.delete('/:userId',
+  validatorHandler(getUserSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const user = await usersService.delete(userId)
+      res.status(200).json({
+        message: 'Deleted',
+        data: user
+      })
+    } catch (err) {
+      next(err);
+    }
   }
-})
+)
 
 module.exports = router;
