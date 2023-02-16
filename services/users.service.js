@@ -10,15 +10,17 @@ class UsersService {
     return newUser;
   }
 
-  async find(limit, offset=0) {
-    const users = await models.User.findAll({
-      limit,
-      offset
-    });
+  async find(query) {
+    const options = {
+      include: ['costumer']
+    };
 
-    if (users.length === 0) {
-      throw boom.notFound(`Not users`);
+    if (query.limit) {
+      options.limit = query.limit,
+      options.offset = query.offset || 0
     }
+
+    const users = await models.User.findAll(options);
 
     return users;
   }

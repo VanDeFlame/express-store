@@ -2,22 +2,23 @@ const express = require("express");
 const UsersService = require("../services/users.service");
 
 const validatorHandler = require('../middlewares/validator.handler');
-const { createUserSchema, updateUserSchema, getUserSchema } = require('../schemas/users.schema');
+const { createUserSchema, updateUserSchema, getUserSchema, queryUserSchema } = require('../schemas/users.schema');
 
 const router = express.Router();
 const usersService = new UsersService();
 
 /* USERS */
-router.get("/", async (req, res, next) => {
-  const { limit, offset } = req.query;
-
-  try {
-    const users = await usersService.find(limit, offset);
-    res.status(200).json(users);
-  } catch (err) {
-    next(err);
+router.get("/",
+  validatorHandler(queryUserSchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const users = await usersService.find(req.query);
+      res.status(200).json(users);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 router.get("/:userId",
   validatorHandler(getUserSchema, 'params'),
