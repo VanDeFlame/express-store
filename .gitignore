@@ -213,7 +213,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # Database
-*_data/
+*_data/*
+!.gitkeep
 
 *.ignore*
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos,linux

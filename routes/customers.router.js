@@ -7,7 +7,6 @@ const { createCustomerSchema, updateCustomerSchema, getCustomerSchema, queryCust
 const router = express.Router();
 const customersService = new CustomersService();
 
-/* USERS */
 router.get("/",
   validatorHandler(queryCustomerSchema, 'query'),
   async (req, res, next) => {

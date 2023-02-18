@@ -1,4 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 const USER_TABLE = 'users';
 
@@ -28,6 +29,11 @@ const UserSchema = {
     type: DataTypes.DATE,
     field: 'created_at',
     defaultValue: Sequelize.NOW(),
+  },
+  recoveryToken: {
+    allowNull: true,
+    type: DataTypes.STRING,
+    field: 'recovery_token'
   }
 }
 
@@ -44,8 +50,18 @@ class User extends Model {
       sequelize,
       tableName: USER_TABLE,
       modelName: 'User',
-      timestamps: false
+      timestamps: false,
+      hooks: {
+        beforeCreate: this._userFormatter,
+        beforeUpdate: this._userFormatter
+      }
     }
+  }
+
+  static async _userFormatter (user, options) {
+    const password = await bcrypt.hash(user.password, 10);
+    user.password = password;
+    user.email = user.dataValues.email.toLowerCase();
   }
 }
 

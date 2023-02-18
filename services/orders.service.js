@@ -1,12 +1,20 @@
-const boom = require('boom');
+const boom = require('@hapi/boom');
+const sequelize = require('sequelize');
 const { models } = require('../libs/sequelize');
 
 class OrdersService {
   constructor() {}
 
-  async create(data) {
-    const newOrder = await models.Order.create(data);
+  async create(userId) {
+    const customer = await models.Customer.findOne({
+      where: {
+        userId
+      }
+    });
 
+    const newOrder = await models.Order.create({
+      customerId: customer.id
+    });
     return newOrder;
   }
 
@@ -18,6 +26,22 @@ class OrdersService {
 
   async find() {
     const orders = await models.Order.findAll();
+
+    return orders;
+  }
+
+  async findByUser(userId) {
+    const orders = await models.Order.findAll({
+      where: {
+        '$customer.user.id$': userId
+      },
+      include: [
+        {
+          association: 'customer',
+          include: ['user']
+        }
+      ]
+    });
 
     return orders;
   }
@@ -36,6 +60,10 @@ class OrdersService {
     if (!order) {
       throw boom.notFound(`Order ${id} doesn't exists`)
     }
+
+    order.dataValues.total = order.items.reduce((total, item) => {
+      return total + (item.price * item.OrderProduct.amount);
+    }, 0)
 
     return order;
   }

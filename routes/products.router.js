@@ -1,13 +1,14 @@
 const express = require('express');
+const passport = require('passport');
 const ProductsService = require('../services/products.service');
 
 const validatorHandler = require('../middlewares/validator.handler');
 const { createProductSchema, updateProductSchema, getProductSchema, queryProductSchema } = require('../schemas/products.schema');
+const { checkRoles } = require('../middlewares/auth.handler');
 
 const router = express.Router();
 const productsService = new ProductsService();
 
-/* PRODUCTS */
 router.get("/",
   validatorHandler(queryProductSchema, 'query'),
   async (req, res, next) => {
@@ -34,6 +35,8 @@ router.get("/:productId",
 );
 
 router.post('/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
   validatorHandler(createProductSchema, 'body'),
   async (req, res, next) => {
     try {
@@ -49,6 +52,8 @@ router.post('/',
 );
 
 router.patch('/:productId',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   async (req, res, next) => {
@@ -66,6 +71,8 @@ router.patch('/:productId',
 );
 
 router.delete('/:productId',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
   validatorHandler(getProductSchema, 'params'),
    async (req, res, next) => {
     try {

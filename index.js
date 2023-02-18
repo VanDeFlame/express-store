@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const routerApi = require("./routes");
-const errorHandlers = require('./middlewares/error.handler')
+
+const errorHandlers = require('./middlewares/error.handler');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,7 +20,9 @@ const options = {
     }
   }
 }
+
 app.use(cors(options))
+require('./utils/auth');
 
 app.get("/", (req, res) => {
   res.send("Hello, this is my Express Server");

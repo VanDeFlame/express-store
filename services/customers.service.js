@@ -1,4 +1,4 @@
-const boom = require('boom');
+const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 class CustomersService {
@@ -9,7 +9,7 @@ class CustomersService {
       include: ['user']
     });
 
-    return newCustomer;
+    return this._removePassword(newCustomer);
   }
 
   async find(query) {
@@ -52,6 +52,11 @@ class CustomersService {
       where: { id }
     });
 
+    return customer;
+  }
+
+  _removePassword(customer) {
+    delete customer.User.dataValues.password;
     return customer;
   }
 }
